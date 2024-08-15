@@ -1,0 +1,58 @@
+* {
+    font-family: 'Courier New', Courier, monospace;
+    ::selection {
+        background-color: #000000;
+        color: #f9ff4b;
+    }
+}
+
+.mainContainer {
+    display: flex;
+    justify-content: center;  
+    align-items: center;    
+    text-align: left;       
+    height: 100%;       
+    width: 100%;                   
+    box-sizing: border-box;   
+}
+
+.usernameLabel{
+    color: red;
+    font-weight: bold;
+}
+
+textarea {
+    resize: none;
+    height: 80px;
+    width: 250px;
+
+}
+
+.mainContainerSign {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.mainContent {
+    width: 100%;
+    max-width: 500px;
+    text-align: left;
+}
+.messageItem {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+}
+
+.messageItem p {
+    margin: 0;
+}
+
+.messageItem small {
+    color: #888;
+}
