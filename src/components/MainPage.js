@@ -1,23 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import './Style.css';
+import axios from "axios";
 
 function MainPage() {
-    //logic
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
 
-    const handlePost = () => {
-        if (newMessage.trim()) {
-            const currentTimestamp = new Date().toLocaleString();
-            const messageObject = {
-                text: newMessage,
-                timeStamp: currentTimestamp
-            };
-            setMessages([...messages, messageObject]);
-            setNewMessage(""); //clears textarea after post
-        }
-    };
+    // Fetch messages when component mounts
+    useEffect(() => {
+        axios.get('http://localhost:5000/api/messages')
+        .then(response => {
+            setMessages(response.data);
+        })
+        .catch(error => {
+            console.error('Error fetching messages:', error);
+            alert('Error fetching messages.');
+        });
+    }, []);
 
+const handlePost = () => {
+    if (newMessage.trim()) {
+        const currentTimestamp = new Date().toLocaleString();
+        const messageObject = {
+            text: newMessage,
+            timeStamp: currentTimestamp
+        };
+        axios.post('http://localhost:5000/api/messages', messageObject)
+        .then(response => {
+            setMessages(prevMessages => [...prevMessages, messageObject]);
+            setNewMessage(""); //clears the textarea after posting
+        })
+        .catch(error => {
+            console.error('Error posting message: ', error);
+            alert('Error posting message.');
+        });
+    } else {
+        alert("You cannot post an empty message.");
+    }
+};
     return (
         <div className="mainContainer">
             <div className="contentWrapper">
@@ -32,12 +52,12 @@ function MainPage() {
                     {messages.length > 0 ? (
                         messages.map((message, index) => (
                             <div key={index} className="messageItem">
-                                <p>{message.text}</p>
-                                <small>{message.timeStamp}</small>
+                                <p>{message.content}</p>
+                                <small>{message.timestamp}</small>
                             </div>
                         ))
                     ) : (
-                        <p>No messages yet. Start the conversation in the New Message box below!.</p>
+                        <p className="noMsg">No messages yet. Start the conversation in the New Message box below!</p>
                     )}
                 </div>
                 <div>

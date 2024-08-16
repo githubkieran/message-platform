@@ -56,3 +56,8 @@ textarea {
 .messageItem small {
     color: #888;
 }
+
+.noMsg {
+    color: red;
+    font-weight: bolder;
+}
