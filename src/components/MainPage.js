@@ -5,39 +5,45 @@ import axios from "axios";
 function MainPage() {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
-
-    // Fetch messages when component mounts
     useEffect(() => {
         axios.get('http://localhost:5000/api/messages')
-        .then(response => {
-            setMessages(response.data);
-        })
-        .catch(error => {
-            console.error('Error fetching messages:', error);
-            alert('Error fetching messages.');
-        });
+            .then(response => {
+                setMessages(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching messages:', error);
+                alert('Error fetching messages.');
+            });
     }, []);
 
-const handlePost = () => {
-    if (newMessage.trim()) {
-        const currentTimestamp = new Date().toLocaleString();
-        const messageObject = {
-            text: newMessage,
-            timeStamp: currentTimestamp
-        };
-        axios.post('http://localhost:5000/api/messages', messageObject)
-        .then(response => {
-            setMessages(prevMessages => [...prevMessages, messageObject]);
-            setNewMessage(""); //clears the textarea after posting
-        })
-        .catch(error => {
-            console.error('Error posting message: ', error);
-            alert('Error posting message.');
-        });
-    } else {
-        alert("You cannot post an empty message.");
-    }
-};
+    const handlePost = () => {
+        if (newMessage.trim()) {
+            const currentTimestamp = new Date().toISOString();
+            const messageObject = {
+                text: newMessage,
+                timeStamp: currentTimestamp
+            };
+            axios.post('http://localhost:5000/api/messages', messageObject)
+                .then(response => {
+                    setMessages(prevMessages => [...prevMessages, messageObject]);
+                    setNewMessage(""); // clears the textarea after posting
+                })
+                .catch(error => {
+                    console.error('Error posting message: ', error);
+                    alert('Error posting message.');
+                });
+        } else {
+            alert("You cannot post an empty message.");
+        }
+    };
+
+    //filter messages to show newer than 60secs
+    const recentMessages = messages.filter(message => {
+        const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
+        const messageTimestamp = new Date(message.timestamp);
+        return messageTimestamp >= oneMinuteAgo;
+    });
+
     return (
         <div className="mainContainer">
             <div className="contentWrapper">
@@ -45,12 +51,12 @@ const handlePost = () => {
                 <p>
                     This is a messaging platform. Make an account for free and then post anonymously! 
                     (but please behave). <br />
-                    *All messages are deleted after one hour.*
+                    *All messages are deleted after 60 seconds.*
                 </p>
                 <h3>Current Messages:</h3>
                 <div>
-                    {messages.length > 0 ? (
-                        messages.map((message, index) => (
+                    {recentMessages.length > 0 ? (
+                        recentMessages.map((message, index) => (
                             <div key={index} className="messageItem">
                                 <p>{message.content}</p>
                                 <small>{message.timestamp}</small>

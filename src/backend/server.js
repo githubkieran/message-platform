@@ -27,14 +27,13 @@ app.get('/', (req, res) => {
 
 //POST route to handle messages
 app.post('/api/messages', (req, res) => {
-    const { text, timeStamp } = req.body;
+    const { text } = req.body;
 
     if (!text) {
         return res.status(400).json({ error: 'Invalid text' });
-    } else if (!timeStamp) {
-        return res.status(400).json({ error: 'Invalid timestamp' });
     }
 
+    const timeStamp = new Date().toISOString(); // Store in ISO format
     const query = `INSERT INTO messages (content, timestamp) VALUES (?, ?)`;
     db.run(query, [text, timeStamp], function(err) {
         if (err) {
@@ -55,6 +54,22 @@ app.get('/api/messages', (req, res) => {
         res.status(200).json(rows);
     });
 });
+
+const deleteOldMessages = () => {
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString(); //need to convert to local
+    const deleteQuery = 'DELETE FROM messages WHERE timestamp < ?';
+
+    db.run(deleteQuery, [oneMinuteAgo], function (err) {
+        if (err) {
+            console.error('Error deleting old messages:', err.message);
+        } else {
+            console.log(`Deleted ${this.changes} message(s) older than 60 seconds.`);
+        }
+    });
+};
+
+//check for messages after every 10secs
+setInterval(deleteOldMessages, 10 * 1000); //sec, milisec
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}.`);
